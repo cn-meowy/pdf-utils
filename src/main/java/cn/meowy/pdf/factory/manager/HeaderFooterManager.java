@@ -8,7 +8,9 @@ import cn.hutool.core.util.StrUtil;
 import cn.meowy.pdf.struct.AlignmentHandler;
 import cn.meowy.pdf.utils.*;
 import cn.meowy.pdf.utils.structure.PageStruct;
+import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -50,17 +52,19 @@ public class HeaderFooterManager extends PDFManager {
         // 将内容输出到指定页数
         String text = rootElement.getStringValue();
         float fontSize = ObjectUtil.defaultIfNull(getFloatAttribute(rootElement, XmlAttribute.FONT_SIZE), struct.fontSize);
-        float x = getFloatAttribute(rootElement, XmlAttribute.X);
-        float y = getFloatAttribute(rootElement, XmlAttribute.Y);
         boolean underlineFlag = Boolean.parseBoolean(XmlUtils.getStr(rootElement, XmlAttribute.UNDERLINE, getParams()));
         Class<? extends AlignmentHandler> alignment = HANDLER.get(StrUtil.nullToDefault(XmlUtils.getStr(rootElement, XmlAttribute.ALIGNMENT, getParams()), struct.alignment.name()));
         Map<String, Object> params = MapUtil.builder(new HashMap<String, Object>()).put(XmlAttribute.END_PAGE, endPage - startPage).build();
         if (StrUtil.isNotBlank(text)) {
             for (int i = startPage; i < endPage; i++) {
+                PDPage page = doc.getPages().get(i);
+                Map<String, Object> pageParams = getParams(doc, i);
                 params.put(XmlAttribute.BEGIN_PAGE, i + 1);
                 String format = StringUtils.format(text, params);
-                AlignmentHandler handler = ReflectUtil.newInstance(alignment, format, struct.font, fontSize, struct.lineDistance, x, y, x, 0f, 0f, 0f, 0f, struct.getRectangle(), underlineFlag);
-                PDFWriteUtils.write(doc, i, PDRectangle.A4, struct.font, fontSize, struct.pdColor, handler);
+                float x = getFloatAttribute(rootElement, XmlAttribute.X, pageParams);
+                float y = getFloatAttribute(rootElement, XmlAttribute.Y, pageParams);
+                AlignmentHandler handler = ReflectUtil.newInstance(alignment, format, struct.font, fontSize, struct.lineDistance, x, y, x, 0f, 0f, 0f, 0f, page.getMediaBox(), underlineFlag);
+                PDFWriteUtils.write(doc, i, struct.font, fontSize, struct.pdColor, handler);
             }
         }
     }

@@ -2,21 +2,30 @@ package cn.meowy.pdf.factory.manager;
 
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.map.multi.Table;
 import cn.hutool.core.math.Calculator;
 import cn.hutool.core.util.StrUtil;
 import cn.meowy.pdf.struct.*;
 import cn.meowy.pdf.utils.*;
 import cn.meowy.pdf.utils.enums.Alignment;
+import cn.meowy.pdf.utils.enums.TextDirection;
 import cn.meowy.pdf.utils.structure.PageStruct;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
+import java.awt.*;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * PDF处理器
@@ -25,6 +34,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date: 2024/4/19
  **/
 public abstract class PDFManager {
+
+    /**
+     * 页面配置
+     */
+    protected final static String GLOBAL_PAGE_SETTING = "GLOBAL_PAGE_SETTING";
 
     /**
      * 页面配置
@@ -42,6 +56,11 @@ public abstract class PDFManager {
     protected final static String Y_COORDINATE = "Y";
 
     /**
+     * 页面配置缓存
+     */
+    protected final static ThreadLocal<Map<PDPage, Object>> PAGE_SETTING_CACHE = new ThreadLocal<>();
+
+    /**
      * 缓存
      */
     protected final static ThreadLocal<Map<String, Object>> CACHE = new ThreadLocal<>();
@@ -51,15 +70,22 @@ public abstract class PDFManager {
      */
     protected final static Map<String, PDFManager> MANAGER_MAP = new HashMap<>();
 
+    /**
+     * 对齐方式
+     */
     protected final static Map<String, Class<? extends AlignmentHandler>> HANDLER = new HashMap<>();
 
-    static  {
+    static {
         HANDLER.put(Alignment.LEFT.name(), AlignmentLeft.class);
         HANDLER.put(Alignment.CENTER.name(), AlignmentCenter.class);
         HANDLER.put(Alignment.RIGHT.name(), AlignmentRight.class);
         HANDLER.put(Alignment.TOP.name(), AlignmentTop.class);
         HANDLER.put(Alignment.MIDDLE.name(), AlignmentMiddle.class);
         HANDLER.put(Alignment.BOTTOM.name(), AlignmentBottom.class);
+    }
+
+    public static PDFManager getPDFManager() {
+        return MANAGER_MAP.get("page");
     }
 
     /**
@@ -77,10 +103,10 @@ public abstract class PDFManager {
     }
 
     public static <T> void action(PDDocument doc, String templateName, T data) {
-        Document template = TemplateUtils.loadTemplate(templateName, data);
+        Document template = TemplateUtils.loadTemplate(templateName, data);  // 读取模版
         Assert.state(XmlUtils.rootElementCheck(template, XmlElement.PAGE), "模板根节点错误!\n{}", templateName);
-        Element element = template.getRootElement();
-        MANAGER_MAP.get(element.getName()).handler(doc, element, data);
+        Element element = template.getRootElement();                         // 获取根节点，后续根据子节点自动应用不同的处理器
+        MANAGER_MAP.get(element.getName()).handler(doc, element, data);      // 根节点处理器
     }
 
     /**
@@ -150,9 +176,9 @@ public abstract class PDFManager {
     /**
      * 匹配子节点处理器处理
      *
-     * @param doc      文档
-     * @param element  节点
-     * @param data     数据
+     * @param doc     文档
+     * @param element 节点
+     * @param data    数据
      */
     protected <T> void childHandlers(PDDocument doc, Element element, T data) {
         element.elements().forEach(e -> get(e.getName()).handler(doc, e, data));
@@ -166,7 +192,19 @@ public abstract class PDFManager {
      * @return float
      */
     protected <T> Float getFloatAttribute(Element element, String attributeKey) {
-        String number = XmlUtils.getStr(element, attributeKey, getParams());
+        return getFloatAttribute(element, attributeKey, getParams());
+    }
+
+    /**
+     * 获取flot 属性值
+     *
+     * @param element      元素
+     * @param attributeKey 属性值
+     * @param params       属性列表
+     * @return float
+     */
+    protected <T> Float getFloatAttribute(Element element, String attributeKey, Map<String, Object> params) {
+        String number = XmlUtils.getStr(element, attributeKey, params);
         if (StrUtil.isNotBlank(number)) {
             return ExUtils.execute(() -> (float) Calculator.conversion(number), "属性配置错误!错误属性为[{}]: {}", attributeKey, number);
         }
@@ -234,6 +272,13 @@ public abstract class PDFManager {
      */
     protected PageStruct setting() {
         return getCache(PAGE_SETTING);
+    }
+
+    /**
+     * 获取全局页面配置
+     */
+    protected PageStruct globalSetting() {
+        return getCache(GLOBAL_PAGE_SETTING);
     }
 
     /**
@@ -310,11 +355,208 @@ public abstract class PDFManager {
     }
 
     /**
+     * 获取指定页面的配置参数
+     *
+     * @return 参数
+     */
+    protected Map<String, Object> getParams(PDDocument doc, int index) {
+
+        return MapUtil.builder(getPageSetting(doc, index).map).put("x", getCache(X_COORDINATE)).put("y", getCache(Y_COORDINATE)).build();
+    }
+
+    /**
      * 创建新页
      *
      * @return 新页
      */
     public PDPage newPage() {
-        return new PDPage(setting().rectangle);
+        PDPage page = new PDPage(setting().rectangle);
+        cachePageSetting(page);
+        return page;
+    }
+
+    /**
+     * 缓存pdf页面配置信息
+     *
+     * @param page page
+     */
+    protected void cachePageSetting(PDPage page) {
+        Map<PDPage, Object> map = PAGE_SETTING_CACHE.get();
+        if (Objects.isNull(map)) {
+            synchronized (PDFManager.class) {
+                if (Objects.isNull(PAGE_SETTING_CACHE.get())) {
+                    map = new HashMap<>();
+                    PAGE_SETTING_CACHE.set(map);
+                }
+            }
+        }
+        map.put(page, setting());
+    }
+
+    /**
+     * 获取指定页面的配置信息
+     *
+     * @param doc   文档
+     * @param index 页面索引
+     * @return 配置信息
+     */
+    protected PageStruct getPageSetting(PDDocument doc, int index) {
+        Map<PDPage, Object> cache = PAGE_SETTING_CACHE.get();
+        if (Objects.nonNull(cache)) {
+            List<PDPage> keys = cache.keySet().stream().collect(Collectors.toList());
+            for (PDPage key : keys) {
+                if (doc.getPages().indexOf(key) == index) {
+                    return (PageStruct) cache.get(key);
+                }
+            }
+        }
+        return globalSetting();
+    }
+
+    /**
+     * 设置坐标
+     *
+     * @param element 节点
+     * @param struct  元素
+     */
+    public void setCoordinate(Element element, PageStruct struct) {
+        Float x = getFloatAttribute(element, XmlAttribute.X);                           // 从标签中读取x坐标值
+        Float y = getFloatAttribute(element, XmlAttribute.Y);                           // 从标签中读取y坐标值
+        if (Objects.nonNull(x)) {                                                       // 不为空则设置为指定x坐标为起始位置
+            setCache(X_COORDINATE, x);
+        } else if (Objects.equals(struct.textDirection, TextDirection.HORIZONTAL)) {    // 未指定且文本对齐方式为水平时计算x坐标起始位置
+            if (Objects.equals(struct.alignment, Alignment.RIGHT)) {
+                setCache(X_COORDINATE, struct.margin.left);
+            } else if (Objects.equals(struct.alignment, Alignment.CENTER)) {
+                setCache(X_COORDINATE, struct.centerX);
+            } else {
+                setCache(X_COORDINATE, struct.limitX);
+            }
+        } else {
+            setCache(X_COORDINATE, struct.margin.left);
+        }
+        if (Objects.nonNull(y)) {                                                       // 不为空则设置为指定y坐标为起始位置
+            setCache(Y_COORDINATE, y);
+        } else if (Objects.equals(struct.textDirection, TextDirection.VERTICAL)) {      // 未指定且文本对齐方式为垂直时计算y坐标起始位置
+            if (Objects.equals(struct.alignment, Alignment.BOTTOM)) {
+                setCache(Y_COORDINATE, struct.margin.bottom);
+            } else if (Objects.equals(struct.alignment, Alignment.MIDDLE)) {
+                setCache(Y_COORDINATE, struct.centerY);
+            } else {
+                setCache(Y_COORDINATE, struct.limitY);
+            }
+        } else {
+            setCache(Y_COORDINATE, struct.limitY);
+        }
+    }
+
+
+    /**
+     * PDF文本输出
+     *
+     * @author: Mr.Zou
+     * @date: 2024/4/19
+     **/
+    protected static class PDFWriteUtils {
+
+
+        public static void write(PDDocument doc, final int indexPage, PDFont font, float fontSize, Color color, final AlignmentHandler handler) {
+            int index = indexPage;
+            for (Table<Float, Float, String> cells : handler.pages()) {
+                try (PDPageContentStream contents = new PDPageContentStream(doc, getPage(doc, index++), PDPageContentStream.AppendMode.APPEND, true, true)) {
+                    cells.forEach((x, y, s) -> writeChar(s, x, y, contents, font, fontSize, handler));
+                } catch (Throwable e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        public static void writeSimple(PDDocument doc, PDPage page, String context, PDFont font, float fontSize, float x, float y) {
+            try (PDPageContentStream contents = new PDPageContentStream(doc, page)) {
+                contents.beginText();
+                // 设置字体&字体大小
+                contents.setFont(font, fontSize);
+                writeChar(context, x, y, contents, font, fontSize, null);
+                // 结束输出
+                contents.endText();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        /**
+         * 输出字符
+         *
+         * @param ch       字符
+         * @param x        x坐标
+         * @param y        y坐标
+         * @param contents pdf
+         * @throws IOException io 异常
+         */
+        private static void writeChar(String ch, float x, float y, PDPageContentStream contents, PDFont font, float fontSize, final AlignmentHandler handler) {
+            ExUtils.execute(() -> {
+                // 输出文字
+                contents.beginText();
+                // 设置字体&字体大小
+                contents.setFont(font, fontSize);
+                // 设置文本输出坐标
+                contents.newLineAtOffset(x, y);
+                // 设置输出文件内容
+                contents.showText(ch);
+                // 结束输出
+                contents.endText();
+                if (Objects.nonNull(handler) && handler.isUnderline()) {
+                    if (handler.isHorizontal()) {
+                        contents.moveTo(x, y - 2);
+                        contents.lineTo(x + FontUtils.width(font, ch, fontSize), y - 2);
+                    } else {
+                        contents.moveTo(x + 2, y);
+                        contents.lineTo(x + 2, y - FontUtils.height(font, fontSize) - handler.getLineDistance());
+                    }
+                    contents.stroke();
+                }
+            }, "输出字符失败: {} !", ch);
+        }
+
+        /**
+         * 划线
+         *
+         * @param doc       文档
+         * @param indexPage 起始页
+         * @param fromX     起始x
+         * @param fromY     起始y
+         * @param toX       结束x
+         * @param toY       结束y
+         */
+        public static void drawLine(PDDocument doc, final int indexPage,  float fromX, float fromY, float toX, float toY, float lineWidth) {
+            try (PDPageContentStream contents = new PDPageContentStream(doc, getPage(doc, indexPage), PDPageContentStream.AppendMode.APPEND, true, true)) {
+//            contents.setLineWidth(lineWidth);
+                contents.moveTo(fromX, fromY);
+                contents.lineTo(toX, toY);
+                contents.stroke();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        /**
+         * 获取指定页
+         *
+         * @param doc       PDF文档
+         * @param index     索引页
+         * @return PDF页
+         */
+        public static PDPage getPage(PDDocument doc, int index) {
+            int total = doc.getNumberOfPages();
+            if ((total - 1) >= index) {
+                return doc.getPage(index);
+            } else {
+                for (int i = total; i <= index; i++) {
+                    doc.addPage(getPDFManager().newPage());
+                }
+                return doc.getPage(index);
+            }
+
+        }
     }
 }

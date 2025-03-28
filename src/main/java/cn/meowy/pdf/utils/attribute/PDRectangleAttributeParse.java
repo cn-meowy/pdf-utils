@@ -27,6 +27,7 @@ public class PDRectangleAttributeParse implements AttributeParse {
         PD_RECTANGLE_MAP.put("LETTER", PDRectangle.LETTER);
         PD_RECTANGLE_MAP.put("LEGAL", PDRectangle.LEGAL);
         PD_RECTANGLE_MAP.put("TABLOID", PDRectangle.TABLOID);
+        PD_RECTANGLE_MAP.put("B4", new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth()));
     }
 
     /**

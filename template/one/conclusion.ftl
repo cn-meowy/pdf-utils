@@ -44,16 +44,16 @@
         <tr height="{y} - 150 - {margin.bottom}">
             <td border-width-top="0" border-width-left="1" border-width-right="1" border-width-bottom="0" colum-span="6"></td>
         </tr>
-        <tr horizontal-alignment="RIGHT" height="50">
-            <td border-width-top="0" border-width-left="1" border-width-right="0" border-width-bottom="0" colum-span="2">${date}</td>
-            <td border-width-top="0" border-width-left="0" border-width-right="0" border-width-bottom="0">经办人: ${accountant}</td>
-            <td border-width-top="0" border-width-left="0" border-width-right="0" border-width-bottom="0">职务: 经办人</td>
+        <tr height="50">
+            <td border-width-top="0" border-width-left="1" border-width-right="0" border-width-bottom="0" colum-span="2" horizontal-alignment="CENTER">${date}</td>
+            <td border-width-top="0" border-width-left="0" border-width-right="0" border-width-bottom="1">经办人: ${accountant}</td>
+            <td border-width-top="0" border-width-left="0" border-width-right="0" border-width-bottom="0">职务: 经办员</td>
             <td border-width-top="0" border-width-left="0" border-width-right="1" border-width-bottom="0" colum-span="2" horizontal-alignment="LEFT">电话: ${accountingFirmPhoneNumber}</td>
         </tr>
-        <tr horizontal-alignment="RIGHT" height="50">
+        <tr height="50">
             <td border-width-top="0" border-width-left="1" border-width-right="0" border-width-bottom="0" colum-span="2"></td>
-            <td border-width-top="0" border-width-left="0" border-width-right="0" border-width-bottom="0">复核人: ${accountant}</td>
-            <td border-width-top="0" border-width-left="0" border-width-right="0" border-width-bottom="0">职务: 审核人</td>
+            <td border-width-top="0" border-width-left="0" border-width-right="0" border_width_bottom="1">复核人: ${accountant}</td>
+            <td border-width-top="0" border-width-left="0" border-width-right="0" border-width-bottom="0">职务: 审核员</td>
             <td border-width-top="0" border-width-left="0" border-width-right="1" border-width-bottom="0" colum-span="2" horizontal-alignment="LEFT">电话: ${accountingFirmPhoneNumber}</td>
         </tr>
         <tr horizontal-alignment="RIGHT" height="50">

@@ -40,7 +40,6 @@ import cn.meowy.pdf.factory.manager.PageManager;
 import cn.meowy.pdf.struct.AlignmentCenter;
 import cn.meowy.pdf.utils.FontUtils;
 import cn.meowy.pdf.utils.PDFUtils;
-import cn.meowy.pdf.utils.PDFWriteUtils;
 import cn.meowy.pdf.utils.TemplateUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -62,8 +61,10 @@ import java.awt.*;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Unit test for simple App.
@@ -90,7 +91,7 @@ public class AppTest {
         TEMP_PATH = BASE_DIR + "temp/template";
         TEMPLATE_PATH = BASE_DIR + "template";
         FONT_PATH = BASE_DIR + "ttf";
-        FONT_NAME = BASE_DIR + "TW-Kai-98_1";
+        FONT_NAME = "TW-Kai-98_1";
         TEMPLATE_NAME = "one/body.ftl";
 
     }
@@ -149,15 +150,16 @@ public class AppTest {
     public void pdfTest() {
         FileUtil.del(PATH);
         PDDocument document = new PDDocument();
-        float x = PDRectangle.A4.getWidth() / 2;
-        float y = PDRectangle.A4.getHeight() / 2;
-        PDFont font = FontUtils.loadFont(document, FONT_PATH + "ali/" + FONT_NAME + ".ttf");
+        PDRectangle pageSize = new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth());
+        float x = pageSize.getWidth() / 2;
+        float y = pageSize.getHeight() / 2;
+        PDFont font = FontUtils.loadFont(document, FONT_PATH + "/ali/" + FONT_NAME + ".ttf");
 //        AlignmentLeft left = new AlignmentLeft(RandomStringUtils.randomAlphabetic(666), font, 20, 10, 100, 100, 100, 10, 100, 100, 100, PDRectangle.A4);
 //        PDFWriteUtils.write(document, 0, PDRectangle.A4, font, 20, left);
 //        AlignmentRight right = new AlignmentRight(RandomStringUtils.randomAlphabetic(666), font, 20, 10, 500, 700, 500, 100, 100, 100, 100, PDRectangle.A4);
 //        PDFWriteUtils.write(document, 0, PDRectangle.A4, font, 20, right);
-        AlignmentCenter center = new AlignmentCenter(RandomStringUtils.randomAlphabetic(666), font, 20, 10, 200, 600, 200, 100, 100, 100, 100, PDRectangle.A4, false);
-        PDFWriteUtils.write(document, 0, PDRectangle.A4, font, 20, Color.BLACK, center);
+        AlignmentCenter center = new AlignmentCenter(RandomStringUtils.randomAlphabetic(666), font, 20, 10, 200, 600, 200, 100, 100, 100, 100, pageSize, false);
+//        PDFWriteUtils.write(document, 0, font, 20, Color.BLACK, center);
         document.save(PATH);
         document.close();
     }
@@ -187,13 +189,13 @@ public class AppTest {
         String requestNo = RandomStringUtils.randomNumeric(32);
         return MapUtil.builder(new HashMap<String, Object>())
                 .put("requestNo", requestNo)
-                .put("bankName", "  南宁新新银行  ")
-                .put("accountingFirmName", "  南宁新新会计师事务所  ")
+                .put("bankName", "南宁新新银行")
+                .put("accountingFirmName", "南宁新新会计师事务所")
                 .put("year", "2024")
-                .put("accountingFirmAddress", "  广西南宁市青秀区新新大厦  ")
-                .put("accountant", "  张三  ")
-                .put("date", "  2024年04月20日  ")
-                .put("companyName", "  Meowy网络科技有限公司  ")
+                .put("accountingFirmAddress", "广西南宁市青秀区新新大厦")
+                .put("accountant", "一二三")
+                .put("date", "2024年04月20日")
+                .put("companyName", "Meowy网络科技有限公司")
                 .put("conclusion", true)
                 .put("conclusions", conclusions())
                 .put("accountingFirmPhoneNumber", "13728739123")

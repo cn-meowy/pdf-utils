@@ -36,7 +36,7 @@ width 宽度
 height 高度
 *********************
 -->
-<page rectangle="A4" font="TW-Kai-98_1" font-size="14" color="BLACK" x="40" y="830" line-distance="12"
+<page rectangle="A4" font="TW-Kai-98_1" font-size="12" color="BLACK" x="40" y="830" line-distance="12"
       text-direction="HORIZONTAL" alignment="LEFT" margin="20 20 20 20">
     <header slot="header.ftl">
         <footer slot="footer.ftl">
@@ -80,8 +80,9 @@ height 高度
             <paragraph>列示如下：</paragraph>
             <br/>
             <mount slot="one/first-page-footer.ftl"/>
-            <pr/>
+            <pr rectangle="B4" />
             <mount slot="one/option.ftl"/>
+            <pr />
             <mount slot="one/conclusion.ftl"/>
         </footer>
     </header>

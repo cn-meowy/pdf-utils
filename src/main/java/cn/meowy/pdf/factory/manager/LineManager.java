@@ -1,12 +1,7 @@
 package cn.meowy.pdf.factory.manager;
 
 import cn.hutool.core.lang.Assert;
-import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.meowy.pdf.utils.ExUtils;
-import cn.meowy.pdf.utils.PDFWriteUtils;
 import cn.meowy.pdf.utils.XmlAttribute;
-import cn.meowy.pdf.utils.XmlUtils;
 import cn.meowy.pdf.utils.enums.TextDirection;
 import cn.meowy.pdf.utils.structure.PageStruct;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -43,13 +38,13 @@ public class LineManager extends PDFManager {
         if (struct.textDirection.equals(TextDirection.HORIZONTAL)) {
             // 水平
             float toX = x + width;
-            PDFWriteUtils.drawLine(doc, getLastPageNum(doc), struct.getRectangle(), x, y, toX, y, height);
+            PDFWriteUtils.drawLine(doc, getLastPageNum(doc),  x, y, toX, y, height);
             setX(toX);
             setY(y);
         } else {
             // 垂直
             float toY = y - height;
-            PDFWriteUtils.drawLine(doc, getLastPageNum(doc), struct.getRectangle(), x, y, x , toY, width);
+            PDFWriteUtils.drawLine(doc, getLastPageNum(doc),  x, y, x , toY, width);
             setX(x);
             setY(y);
         }

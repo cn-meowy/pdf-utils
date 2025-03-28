@@ -1,6 +1,5 @@
 package cn.meowy.pdf.factory.manager;
 
-import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -24,7 +23,6 @@ import org.vandeseer.easytable.structure.cell.TextCell;
 import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -127,7 +125,7 @@ public class TableManager extends PDFManager {
                     .endY(struct.margin.bottom)
                     .build();
 
-            drawer.draw(() -> doc, this::newPage, newPosition);
+            drawer.draw(() -> doc, this::newPage, Objects.requireNonNull(newPosition));
             setY(drawer.getFinalY());
         } catch (Throwable e) {
             throw new RuntimeException("构建表格失败!", e);

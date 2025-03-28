@@ -1,5 +1,7 @@
 package cn.meowy.pdf.utils.enums;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * 文本方向
  *
@@ -12,4 +14,14 @@ public enum TextDirection {
      * VERTICAL-垂直,HORIZONTAL-水平
      */
     VERTICAL, HORIZONTAL,
+    ;
+
+    public static TextDirection get(String name, TextDirection defaultValue) {
+        for (TextDirection item : TextDirection.values()) {
+            if (StringUtils.equalsIgnoreCase(item.name(), name)) {
+                return item;
+            }
+        }
+        return defaultValue;
+    }
 }

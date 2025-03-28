@@ -1,19 +1,18 @@
 package cn.meowy.pdf.factory.manager;
 
-import cn.hutool.core.util.*;
-import cn.meowy.pdf.struct.*;
-import cn.meowy.pdf.utils.PDFWriteUtils;
+import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.meowy.pdf.struct.AlignmentHandler;
 import cn.meowy.pdf.utils.XmlAttribute;
 import cn.meowy.pdf.utils.XmlUtils;
 import cn.meowy.pdf.utils.enums.Alignment;
 import cn.meowy.pdf.utils.enums.TextDirection;
 import cn.meowy.pdf.utils.structure.PageStruct;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.dom4j.Element;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -62,7 +61,7 @@ public class ParagraphManager extends PDFManager {
         Class<? extends AlignmentHandler> alignment = HANDLER.get(StrUtil.nullToDefault(XmlUtils.getStr(element, XmlAttribute.ALIGNMENT, getParams()), struct.alignment.name()));
         if (StrUtil.isNotBlank(text)) {
             AlignmentHandler handler = ReflectUtil.newInstance(alignment, text, struct.font, fontSize, struct.lineDistance, x, y, newPosition, struct.margin.left, struct.margin.right, struct.margin.top, struct.margin.bottom, struct.getRectangle(), underlineFlag);
-            PDFWriteUtils.write(doc, getLastPageNum(doc), PDRectangle.A4, struct.font, fontSize, struct.pdColor, handler);
+            PDFWriteUtils.write(doc, getLastPageNum(doc), struct.font, fontSize, struct.pdColor, handler);
             // set x y
             setX(handler.getX());
             setY(handler.getY());

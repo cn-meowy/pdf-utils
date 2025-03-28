@@ -104,7 +104,7 @@ public abstract class AlignmentHandler {
     protected boolean underline;
 
     /**
-     * 下划线
+     * 水平
      */
     @Getter
     protected boolean horizontal;

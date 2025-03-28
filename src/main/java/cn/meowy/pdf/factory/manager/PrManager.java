@@ -1,5 +1,6 @@
 package cn.meowy.pdf.factory.manager;
 
+import cn.meowy.pdf.utils.StructUtils;
 import cn.meowy.pdf.utils.structure.PageStruct;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -24,11 +25,9 @@ public class PrManager extends PDFManager {
      */
     @Override
     public <T> void handler(PDDocument doc, Element element, T data) {
-        // 指定页面不处理
-        PageStruct struct = setting();
-        newPage(doc);
-        setX(struct.margin.left);
-        setY(struct.limitY);
-
+        PageStruct struct = StructUtils.copyPageStruct(globalSetting(), element, doc);
+        setCache(PAGE_SETTING, struct); // 重置配置
+        newPage(doc);                   // 创建新页
+        setCoordinate(element, struct); // 重置x、y坐标
     }
 }
