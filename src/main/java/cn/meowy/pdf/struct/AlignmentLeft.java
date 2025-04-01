@@ -31,7 +31,7 @@ public class AlignmentLeft extends AlignmentHandler {
             // 换行
             nextLine();
         }
-        table.put(this.x, this.y, String.valueOf(ch));
+        table.put(this.x, this.y, ch);
         // 移动到结束未知
         this.x += width;
     }

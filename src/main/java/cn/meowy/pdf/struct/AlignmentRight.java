@@ -69,7 +69,7 @@ public class AlignmentRight extends AlignmentHandler {
         if (tempX > lineSpace) {
             nextLine();
         }
-        table.put(this.x, this.y, String.valueOf(ch));
+        table.put(this.x, this.y, ch);
         // 总长度减小
         this.totalWidth -= width;
         // 将坐标移动到结尾
@@ -82,7 +82,7 @@ public class AlignmentRight extends AlignmentHandler {
      * @return pages
      */
     @Override
-    public List<Table<Float, Float, String>> pages() {
+    public List<Table<Float, Float, Character>> pages() {
         for (StringBuilder sb : toLine()) {
             String text = sb.toString();
             this.totalWidth = FontUtils.width(this.font, text, this.fontSize);

@@ -22,12 +22,12 @@ public abstract class AlignmentHandler {
     /**
      * 页面
      */
-    protected List<Table<Float, Float, String>> pages;
+    protected List<Table<Float, Float, Character>> pages;
 
     /**
      * 当前绘制的页面 坐标 及 内容
      */
-    protected Table<Float, Float, String> table;
+    protected Table<Float, Float, Character> table;
 
     /**
      * 文字高度
@@ -157,7 +157,7 @@ public abstract class AlignmentHandler {
      *
      * @return pages
      */
-    public List<Table<Float, Float, String>> pages() {
+    public List<Table<Float, Float, Character>> pages() {
         for (char ch : this.context.toCharArray()) {
             if (isBreak(ch)) {
                 // 换行符

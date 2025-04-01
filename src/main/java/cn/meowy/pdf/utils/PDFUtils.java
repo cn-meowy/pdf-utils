@@ -3,6 +3,7 @@ package cn.meowy.pdf.utils;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
 import cn.meowy.pdf.factory.manager.*;
+import cn.meowy.pdf.service.FontService;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.dom4j.Document;
 
@@ -30,10 +31,17 @@ public class PDFUtils {
 
     public static <T> void write(String pdfPath, String templateName, T data) {
         try (PDDocument document = new PDDocument()) {
-            // 执行PDF处理
-            PDFManager.action(document, templateName, data);
-            // 保存PDF
-            document.save(FileUtil.touch(pdfPath));
+            PDFManager.action(document, templateName, data);                    // 执行PDF处理
+            document.save(FileUtil.touch(pdfPath));                             // 保存PDF
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> void write(String pdfPath, FontService fontService, String templateName, T data) {
+        try (PDDocument document = new PDDocument()) {
+            PDFManager.action(document, fontService, templateName, data);                    // 执行PDF处理
+            document.save(FileUtil.touch(pdfPath));                             // 保存PDF
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

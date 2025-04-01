@@ -6,6 +6,7 @@ import cn.hutool.core.map.multi.Table;
 import cn.hutool.core.math.Calculator;
 import cn.hutool.core.text.CharPool;
 import cn.hutool.core.util.StrUtil;
+import cn.meowy.pdf.service.FontService;
 import cn.meowy.pdf.struct.*;
 import cn.meowy.pdf.utils.*;
 import cn.meowy.pdf.utils.annotation.StyleProperty;
@@ -83,6 +84,11 @@ public abstract class PDFManager {
     protected final static List<Field> CLEAN_FIELDS;
 
     /**
+     * 字体工具
+     */
+    protected static FontService FONT_SERVICE;
+
+    /**
      * 对齐方式
      */
     protected final static Map<String, Class<? extends AlignmentHandler>> HANDLER = new HashMap<>();
@@ -117,11 +123,17 @@ public abstract class PDFManager {
         }
     }
 
-    public static <T> void action(PDDocument doc, String templateName, T data) {
+    public static <T, FS extends FontService> void action(PDDocument doc, FS fontService, String templateName, T data) {
+        FONT_SERVICE = Objects.nonNull(fontService) ? fontService : new FontService() {
+        };
         Document template = TemplateUtils.loadTemplate(templateName, data);  // 读取模版
         Assert.state(XmlUtils.rootElementCheck(template, XmlElement.PAGE), "模板根节点错误!\n{}", templateName);
         Element element = template.getRootElement();                         // 获取根节点，后续根据子节点自动应用不同的处理器
         MANAGER_MAP.get(element.getName()).handler(doc, element, data);      // 根节点处理器
+    }
+
+    public static <T> void action(PDDocument doc, String templateName, T data) {
+        action(doc, null, templateName, data);
     }
 
     /**
@@ -516,6 +528,7 @@ public abstract class PDFManager {
      */
     public void clean() {
         CLEAN_FIELDS.forEach(f -> ((ThreadLocal<?>) ExUtils.execute(() -> f.get(this))).remove());
+        FONT_SERVICE.clean();
     }
 
     /**
@@ -538,9 +551,9 @@ public abstract class PDFManager {
          */
         public static void write(PDDocument doc, final int indexPage, PDFont font, float fontSize, Color color, final AlignmentHandler handler) {
             int index = indexPage;
-            for (Table<Float, Float, String> cells : handler.pages()) {
+            for (Table<Float, Float, Character> cells : handler.pages()) {
                 try (PDPageContentStream contents = new PDPageContentStream(doc, getPage(doc, index++), PDPageContentStream.AppendMode.APPEND, true, true)) {
-                    cells.forEach((x, y, s) -> writeChar(s, x, y, contents, color, font, fontSize, handler.isUnderline(), handler.isHorizontal(), handler.getLineDistance()));
+                    cells.forEach((x, y, c) -> writeChar(c, x, y, doc, contents, color, font, fontSize, handler.isUnderline(), handler.isHorizontal(), handler.getLineDistance()));
                 } catch (Throwable e) {
                     throw new RuntimeException(e);
                 }
@@ -550,18 +563,25 @@ public abstract class PDFManager {
         /**
          * 简单文本输出
          *
-         * @param doc      文档
-         * @param page     输出页
-         * @param context  内容
-         * @param color    颜色
-         * @param font     字体
-         * @param fontSize 字体大小
-         * @param x        起始x坐标
-         * @param y        起始y坐标
+         * @param doc       文档
+         * @param page      输出页
+         * @param context   内容
+         * @param color     颜色
+         * @param font      字体
+         * @param fontSize  字体大小
+         * @param x         起始x坐标
+         * @param y         起始y坐标
+         * @param lineSpace 间距
          */
-        public static void writeSimple(PDDocument doc, PDPage page, String context, Color color, PDFont font, float fontSize, float x, float y) {
+        public static void writeSimple(PDDocument doc, PDPage page, String context, Color color, PDFont font, float fontSize, float x, float y, float lineSpace) {
+            float tempX = x;
             try (PDPageContentStream contents = new PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true)) {
-                writeChar(StrUtil.nullToEmpty(context), x, y, contents, color, font, fontSize, false, false, 0);    // 输出字符
+                if (StrUtil.isNotBlank(context)) {
+                    for (char ch : context.toCharArray()) {
+                        writeChar(ch, tempX, y, doc, contents, color, font, fontSize, false, false, 0);    // 输出字符
+                        tempX += FontUtils.width(FONT_SERVICE.loadFont(ch, doc, font), ch, fontSize) + lineSpace;
+                    }
+                }
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
@@ -581,7 +601,7 @@ public abstract class PDFManager {
          */
         public static void writeSimple(PDDocument doc, int pageIndex, char ch, Color color, PDFont font, float fontSize, float x, float y, boolean underline, boolean horizontal, float lineDistance) {
             try (PDPageContentStream contents = new PDPageContentStream(doc, getPage(doc, pageIndex), PDPageContentStream.AppendMode.APPEND, true, true)) {
-                writeChar(String.valueOf(ch), x, y, contents, color, font, fontSize, underline, horizontal, lineDistance);    // 输出字符
+                writeChar(ch, x, y, doc, contents, color, font, fontSize, underline, horizontal, lineDistance);    // 输出字符
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
@@ -595,13 +615,13 @@ public abstract class PDFManager {
          * @param y        y坐标
          * @param contents pdf
          */
-        public static void writeChar(String ch, float x, float y, PDPageContentStream contents, Color color, PDFont font, float fontSize, boolean underline, boolean horizontal, float lineDistance) {
+        public static void writeChar(char ch, float x, float y, PDDocument doc, PDPageContentStream contents, Color color, PDFont font, float fontSize, boolean underline, boolean horizontal, float lineDistance) {
             ExUtils.execute(() -> {
                 contents.beginText();                                                                                       // 输出文字
-                contents.setFont(font, fontSize);                                                                           // 设置字体&字体大小
+                contents.setFont(FONT_SERVICE.loadFont(ch, doc, font), fontSize);                                           // 设置字体&字体大小
                 contents.newLineAtOffset(x, y);                                                                             // 设置文本输出坐标
                 contents.setNonStrokingColor(color);                                                                        // 设置颜色
-                contents.showText(ch);                                                                                      // 设置输出文件内容
+                contents.showText(String.valueOf(ch));                                                                      // 设置输出文件内容
                 contents.endText();                                                                                         // 结束输出
                 if (underline) {                                                                                            // 下划线设置
                     if (horizontal) {                                                                                       // 水平对齐

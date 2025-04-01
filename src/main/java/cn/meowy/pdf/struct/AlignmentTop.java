@@ -35,7 +35,7 @@ public class AlignmentTop extends AlignmentHandler {
         }
         // 计算字体最大宽度
         maxWidth(width);
-        table.put(this.x, this.y, String.valueOf(ch));
+        table.put(this.x, this.y, ch);
         this.y = this.y - this.height - this.lineDistance;
     }
 

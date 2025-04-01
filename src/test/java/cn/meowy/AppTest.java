@@ -35,9 +35,11 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ClassUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.meowy.pdf.factory.manager.PDFManager;
 import cn.meowy.pdf.factory.manager.PageManager;
+import cn.meowy.pdf.service.impl.CharFontServiceImpl;
 import cn.meowy.pdf.struct.AlignmentCenter;
 import cn.meowy.pdf.utils.FontUtils;
 import cn.meowy.pdf.utils.PDFUtils;
@@ -181,8 +183,23 @@ public class AppTest {
         PDFUtils.write(PATH, TEMPLATE_NAME, data());
     }
 
+    @Test
+    public void pdfOfMultiFont() {
+        FileUtil.del(TEMP_PATH);
+        FileUtil.mkdir(TEMP_PATH);
+        FileUtil.del(PATH);
+        FontUtils.init(FONT_PATH);
+        TemplateUtils.init(TEMPLATE_PATH, TEMP_PATH);
+        PDFUtils.write(PATH, new CharFontServiceImpl(
+//                FONT_PATH + "/other/LikeJianJianTi-Regular.ttf",
+                FONT_PATH + "/ali/TW-Kai-98_1.ttf",
+                FONT_PATH + "/other/number.ttf",
+                FONT_PATH + "/other/english.ttf"
+        ), TEMPLATE_NAME, data());
+    }
+
     private Map<String, Object> data() {
-        String requestNo = RandomStringUtils.randomNumeric(32);
+        String requestNo = RandomUtil.randomString("广西南宁市青秀区新新大厦", 2) + RandomUtil.randomNumbers(10) + RandomUtil.randomString(10);
         return MapUtil.builder(new HashMap<String, Object>())
                 .put("requestNo", requestNo)
                 .put("bankName", "南宁新新银行")
@@ -210,7 +227,7 @@ public class AppTest {
         List<Map<String, String>> list = new ArrayList<>();
         for (int i = 0; i < 1; i++) {
             list.add(MapUtil.builder(new HashMap<String, String>())
-                    .put("data", RandomStringUtils.randomNumeric(22, 50))
+                    .put("data",  RandomUtil.randomString("广西南宁市青秀区新新大厦", 400) + RandomUtil.randomNumbers(100) + RandomUtil.randomString(110))
                     .build());
         }
         return list;

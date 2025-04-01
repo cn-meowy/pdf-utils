@@ -85,7 +85,7 @@ public class AlignmentCenter extends AlignmentHandler {
         }
         // 总长度减小
         this.totalWidth -= width;
-        table.put(this.x, this.y, String.valueOf(ch));
+        table.put(this.x, this.y, ch);
         // 移动到结尾
         this.x += width;
     }
@@ -96,7 +96,7 @@ public class AlignmentCenter extends AlignmentHandler {
      * @return pages
      */
     @Override
-    public List<Table<Float, Float, String>> pages() {
+    public List<Table<Float, Float, Character>> pages() {
         for (StringBuilder text : toLine()) {
             String str = text.toString();
             this.totalWidth = FontUtils.width(this.font, str, this.fontSize);
