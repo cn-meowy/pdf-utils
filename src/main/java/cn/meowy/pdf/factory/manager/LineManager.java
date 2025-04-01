@@ -1,13 +1,22 @@
 package cn.meowy.pdf.factory.manager;
 
-import cn.hutool.core.lang.Assert;
-import cn.meowy.pdf.utils.XmlAttribute;
+import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.meowy.pdf.utils.enums.TextDirection;
 import cn.meowy.pdf.utils.structure.PageStruct;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.dom4j.Element;
 
+import java.awt.*;
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 换行
@@ -17,6 +26,11 @@ import java.util.Map;
  **/
 public class LineManager extends PDFManager {
 
+    protected static final Map<String, Field> STYLE_KEY;         // 样式键
+
+    static {
+        STYLE_KEY = Arrays.stream(ReflectUtil.getFields(Style.class)).collect(Collectors.toMap(f -> SET + StrUtil.upperFirst(f.getName()), field -> field));
+    }
 
     /**
      * 节点处理器
@@ -27,26 +41,30 @@ public class LineManager extends PDFManager {
      */
     @Override
     public <T> void handler(PDDocument doc, Element element, T data) {
-        float x = getX(element);
-        float y = getY(element);
-        Map<String, Object> params = getParams();
-        Float width = getFloatAttribute(element, XmlAttribute.WIDTH);
-        Float height = getFloatAttribute(element, XmlAttribute.HEIGHT);
-        Assert.state(width > 0f, "线段宽度设置错误! {}", width);
-        Assert.state(height > 0f, "线段宽度设置错误! {}", height);
         PageStruct struct = setting();
-        if (struct.textDirection.equals(TextDirection.HORIZONTAL)) {
-            // 水平
-            float toX = x + width;
-            PDFWriteUtils.drawLine(doc, getLastPageNum(doc),  x, y, toX, y, height);
-            setX(toX);
-            setY(y);
-        } else {
-            // 垂直
-            float toY = y - height;
-            PDFWriteUtils.drawLine(doc, getLastPageNum(doc),  x, y, x , toY, width);
-            setX(x);
-            setY(y);
+        Style style = loadStyle(STYLE_KEY, Style.builder().x(currentX()).y(currentY()).color(struct.pdColor).direction(struct.textDirection).weight(1F).build(), element, getParams());
+        if (Objects.equals(TextDirection.HORIZONTAL, style.direction)) {                                                            // 水平
+            float toX = style.x + style.getWidth();                                                                                  // x结束位置
+            PDFWriteUtils.drawLine(doc, style.color, getLastPageNum(doc), style.x, style.y, toX, style.y, style.weight);            // 划线
+            setLocation(toX, style.y);                                                                                              // 设置x,y坐标
+        } else {                                                                                                                    // 垂直
+            float toY = style.y - style.height;                                                                                     // y结束位置
+            PDFWriteUtils.drawLine(doc, style.color, getLastPageNum(doc), style.x, style.y, style.x, toY, style.weight);            // 划线
+            setLocation(style.x, toY);                                                                                              // 设置x,y坐标
         }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    protected static class Style {
+        protected TextDirection direction = TextDirection.HORIZONTAL;
+        protected Color color = Color.BLACK;
+        protected Float x;
+        protected Float y;
+        protected Float width;
+        protected Float height;
+        protected Float weight;
     }
 }

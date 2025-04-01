@@ -1,9 +1,7 @@
 package cn.meowy.pdf.utils.attribute;
 
-import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.meowy.pdf.utils.ColorUtils;
-import cn.meowy.pdf.utils.XmlAttribute;
 
 import java.awt.*;
 
@@ -13,7 +11,7 @@ import java.awt.*;
  * @author: Mr.Zou
  * @date: 2024/4/20
  **/
-public class ColorAttributeParse implements AttributeParse {
+public class ColorAttributeParse implements AttributeParse<Color> {
 
 
 
@@ -24,7 +22,7 @@ public class ColorAttributeParse implements AttributeParse {
      * @return 出参
      */
     @Override
-    public <R> R parse(String value) {
-        return StrUtil.isBlank(value) ? null : (R) ColorUtils.get(value);
+    public Color parse(String value) {
+        return StrUtil.isBlank(value) ? null : ColorUtils.get(value);
     }
 }

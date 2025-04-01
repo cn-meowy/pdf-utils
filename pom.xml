@@ -26,6 +26,7 @@
         <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+        <exp4j.version>0.4.8</exp4j.version>
     </properties>
     <dependencies>
         <dependency>
@@ -33,13 +34,13 @@
             <artifactId>pdfbox</artifactId>
             <version>${pdfbox.version}</version>
         </dependency>
-        <dependency>
+       <!-- <dependency>
             <groupId>com.github.vandeseer</groupId>
             <artifactId>easytable</artifactId>
             <version>${easytable.version}</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/libs/easytable-${easytable.version}.jar</systemPath>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -85,6 +86,11 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback-classic.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.objecthunter</groupId>
+            <artifactId>exp4j</artifactId>
+            <version>${exp4j.version}</version>
         </dependency>
         <!--Test Dependencies-->
         <dependency>

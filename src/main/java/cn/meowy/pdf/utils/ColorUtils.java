@@ -32,7 +32,7 @@ public class ColorUtils {
             if (size == 1) {
                 return ColorUtil.getColor(color);
             } else if (size == 3) {
-                return ExUtils.execute(() -> new Color(NumberUtil.parseFloat(split.get(0)), NumberUtil.parseFloat(split.get(1)), NumberUtil.parseFloat(split.get(2))), "初始化颜色失败!");
+                return ExUtils.execute(() -> new Color(NumberUtil.parseInt(split.get(0)), NumberUtil.parseInt(split.get(1)), NumberUtil.parseInt(split.get(2))), "初始化颜色失败!");
             }
             throw new RuntimeException("色彩配置错误!");
         }

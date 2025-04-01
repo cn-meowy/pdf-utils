@@ -25,9 +25,9 @@ public class PrManager extends PDFManager {
      */
     @Override
     public <T> void handler(PDDocument doc, Element element, T data) {
-        PageStruct struct = StructUtils.copyPageStruct(globalSetting(), element, doc);
-        setCache(PAGE_SETTING, struct); // 重置配置
-        newPage(doc);                   // 创建新页
-        setCoordinate(element, struct); // 重置x、y坐标
+        PageStruct struct = StructUtils.copyPageStruct(globalSetting(), element, doc);      // 手工换页后可重置页面配置,未设置项沿用全局配置
+        setCache(PAGE_SETTING, struct);                                                     // 缓存当前页配置
+        newPage(doc);                                                                       // 创建新页
+        setCoordinate(element, struct);                                                     // 重置x、y坐标
     }
 }

@@ -7,12 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.vandeseer.easytable.settings.HorizontalAlignment;
 
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * 页面结构
@@ -75,6 +73,11 @@ public class PageStruct {
     public final float lineDistance;
 
     /**
+     * 行间距
+     */
+    public final float lineSpace;
+
+    /**
      * 文本方向
      */
     public final TextDirection textDirection;
@@ -94,7 +97,7 @@ public class PageStruct {
      */
     public final Map<String, Object> map;
 
-    public PageStruct(PDRectangle rectangle, Margin margin, PDFont font, float fontSize, Color pdColor, float lineDistance, TextDirection textDirection, Alignment alignment, float newPosition) {
+    public PageStruct(PDRectangle rectangle, Margin margin, PDFont font, float fontSize, Color pdColor, float lineDistance, float lineSpace, TextDirection textDirection, Alignment alignment, float newPosition) {
         this.rectangle = rectangle;
         this.margin = margin;
         this.newPosition = newPosition;
@@ -106,6 +109,7 @@ public class PageStruct {
         this.fontSize = fontSize;
         this.pdColor = pdColor;
         this.lineDistance = lineDistance;
+        this.lineSpace = lineSpace;
         this.textDirection = textDirection;
         this.alignment = alignment;
         this.map = MapUtil.builder(new HashMap<String, Object>())

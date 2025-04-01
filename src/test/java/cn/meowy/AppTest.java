@@ -31,6 +31,7 @@
 
 package cn.meowy;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ClassUtil;
@@ -53,13 +54,8 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.dom4j.Document;
 import org.dom4j.io.SAXReader;
 import org.junit.Test;
-import org.vandeseer.easytable.TableDrawer;
-import org.vandeseer.easytable.settings.Settings;
-import org.vandeseer.easytable.structure.Table;
 
-import java.awt.*;
 import java.io.File;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -106,20 +102,20 @@ public class AppTest {
         PDType1Font font = new PDType1Font(document, Files.newInputStream(new File(FONT_PATH).toPath()));
         float startY = page.getMediaBox().getHeight() - PADDING;
         try (final PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-            Table table = Table.builder()
-                    .build();
-
-            TableDrawer.builder()
-                    .page(page)
-                    .contentStream(contentStream)
-                    .table(table)
-                    .startX(PADDING)
-                    .startY(startY)
-                    .endY(PADDING)
-                    .build()
-                    .draw(() -> document, () -> new PDPage(PDRectangle.A4), PADDING);
-
-            startY -= (table.getHeight() + PADDING);
+//            Table table = Table.builder()
+//                    .build();
+//
+//            TableDrawer.builder()
+//                    .page(page)
+//                    .contentStream(contentStream)
+//                    .table(table)
+//                    .startX(PADDING)
+//                    .startY(startY)
+//                    .endY(PADDING)
+//                    .build()
+//                    .draw(() -> document, () -> new PDPage(PDRectangle.A4), PADDING);
+//
+//            startY -= (table.getHeight() + PADDING);
 
         }
 
@@ -171,7 +167,7 @@ public class AppTest {
 
     @Test
     public void classTest() {
-        Field[] declaredFields = ClassUtil.getDeclaredFields(Settings.class);
+//        Field[] declaredFields = ClassUtil.getDeclaredFields(Settings.class);
         System.out.println("");
     }
 
@@ -237,5 +233,53 @@ public class AppTest {
         String path = ClassUtil.getClassPathResources().stream().findFirst().orElseThrow(() -> new RuntimeException("无法获取文件路径!"));
         return StrUtil.sub(path, 0, StrUtil.lastIndexOf(path, "target", path.length(), false));
 
+    }
+
+    public Integer findX(List<Integer> stringLengths, int lines) {
+        if (stringLengths == null || stringLengths.isEmpty()) {
+            return null;                                                                                    // 无字符串
+        }
+        int n = stringLengths.size();
+        int sumLi = stringLengths.stream().mapToInt(Integer::intValue).sum();                              // 总长度
+        int maxLi = stringLengths.stream().mapToInt(Integer::intValue).max().orElse(0);              // 最大长度
+        if (lines < n || lines > sumLi) {                                                                  // 检查 lines 是否在有效范围内 [n, sumLi]
+            return null;                                                                                   // 无解
+        }
+        int low = 1;
+        int high = maxLi;                                                                                   // 初始 high 设置为最大的 Li
+        Integer result = null;
+        while (low <= high) {                                                                               // 二分查找
+            int mid = (low + high) / 2;
+            int total = 0;
+            boolean breakEarly = false;
+            for (int length : stringLengths) {
+                total += (length + mid - 1) / mid;                                                          // 计算 ceil(length/mid)
+                if (total > lines) {
+                    breakEarly = true;
+                    break;                                                                                  // 提前终止
+                }
+            }
+            if (breakEarly) {
+                low = mid + 1;
+            } else {
+                if (total == lines) {
+                    result = mid;                                                                           // 记录当前解，继续寻找更大的 x
+                    low = mid + 1;
+                } else if (total < lines) {
+                    high = mid - 1;
+                } else {
+                    low = mid + 1;
+                }
+            }
+        }
+        return result;
+    }
+
+    @Test
+    public void findTest() {
+        List<Integer> strings = CollUtil.newArrayList(5, 10, 15);
+        int y = 9;
+        Integer x = findX(strings, y);
+        System.out.println("分割长度 x 为: " + (x != null ? x : "无解")); // 输出应为 4
     }
 }

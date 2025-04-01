@@ -27,32 +27,26 @@ public class BrManager extends PDFManager {
     @Override
     public <T> void handler(PDDocument doc, Element element, T data) {
         PageStruct struct = setting();
-        if (TextDirection.HORIZONTAL.equals(struct.getTextDirection())) {
-            // 水平对齐
-            float y = getY(element) - FontUtils.height(struct.font, struct.fontSize) - struct.lineDistance;
-            if (y < struct.margin.bottom) {
-                // 换页,重置y
-                newPage(doc);
-                setY(struct.limitY);
-            } else {
-                // 下一行
+        if (TextDirection.HORIZONTAL.equals(struct.getTextDirection())) {                                    // 水平对齐
+            float y = currentY() - FontUtils.height(struct.font, struct.fontSize) - struct.lineDistance;     // 计算换行后的y坐标值
+            if (y < struct.margin.bottom) {                                                                  // 换页,重置y
+                newPage(doc);                                                                                // 创建新页
+                setY(struct.limitY);                                                                         // 重置y坐标
+            } else {                                                                                         // 无需换页,y坐标移动到下一行
                 setY(y);
             }
-            // 重置x
-            setX(struct.margin.left);
-        } else {
-            // 垂直对齐
-            float x = getX(element) + FontUtils.height(struct.font, struct.fontSize) + struct.lineDistance;
-            if (x < struct.limitX) {
-                // 换页,重置x
-                setX(struct.margin.left);
-                newPage(doc);
-            } else {
-                // 下一行
-                setX(x);
+            setX(struct.margin.left);                                                                        // 重置x左边
+        } else {                                                                                             // 垂直对齐
+            float x = currentY() + FontUtils.height(struct.font, struct.fontSize) + struct.lineDistance;     // 计算换行后的x坐标值
+            if (x < struct.limitX) {                                                                         // 换页,重置x
+                newPage(doc);                                                                                // 创建新的一页
+                setX(struct.margin.left);                                                                    // 重置x坐标
+            } else {                                                                                         // 无需换页,x坐标移动到下一行
+                setX(x);                                                                                     // 设置x坐标
             }
-            // 重置y
-            setY(struct.limitY);
+            setY(struct.limitY);                                                                             // 重置y坐标
         }
     }
+
+
 }

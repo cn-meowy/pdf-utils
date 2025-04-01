@@ -28,4 +28,29 @@ public enum Alignment {
         }
         return defaultAlignment;
     }
+
+    public boolean isLeft() {
+        return this == LEFT;
+    }
+
+    public boolean isCenter() {
+        return this == CENTER;
+    }
+
+    public boolean isRight() {
+        return this == RIGHT;
+    }
+
+    public boolean isBottom() {
+        return this == BOTTOM;
+    }
+
+    public boolean isMiddle() {
+        return this == MIDDLE;
+    }
+
+    public boolean isTop() {
+        return this == TOP;
+    }
+
 }

@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author: Mr.Zou
  * @date: 2024/4/20
  **/
-public class PDRectangleAttributeParse implements AttributeParse {
+public class PDRectangleAttributeParse implements AttributeParse<PDRectangle> {
 
     public final static Map<String, PDRectangle> PD_RECTANGLE_MAP = new ConcurrentHashMap<>();
 

@@ -24,4 +24,11 @@ public enum TextDirection {
         }
         return defaultValue;
     }
+
+    /**
+     * 是否为垂直
+     */
+    public boolean isVertical() {
+        return this == TextDirection.VERTICAL;
+    }
 }

@@ -1,19 +1,19 @@
 package cn.meowy.pdf.utils;
 
-import cn.hutool.core.util.EnumUtil;
-import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.meowy.pdf.utils.attribute.*;
+import cn.meowy.pdf.utils.attribute.AttributeParse;
+import cn.meowy.pdf.utils.attribute.BooleanAttributeParse;
+import cn.meowy.pdf.utils.attribute.ColorAttributeParse;
+import cn.meowy.pdf.utils.attribute.PDRectangleAttributeParse;
+import net.objecthunter.exp4j.ExpressionBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.vandeseer.easytable.settings.HorizontalAlignment;
-import org.vandeseer.easytable.settings.VerticalAlignment;
 
 import java.awt.*;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.BiConsumer;
 
 /**
  * 属性工具类
@@ -26,16 +26,14 @@ public class AttributeUtils {
     /**
      * 解析类型
      */
-    private final static Map<Class<?>, AttributeParse> PARSE = new HashMap<>();
+    private final static Map<Class<?>, AttributeParse<?>> PARSE = new HashMap<>();
 
     /**
      * 初始化
      */
     static {
+        PARSE.put(Boolean.class, new BooleanAttributeParse());
         PARSE.put(Color.class, new ColorAttributeParse());
-        PARSE.put(Float.class, new FloatAttributeParse());
-        PARSE.put(HorizontalAlignment.class, new HorizontalAlignmentAttributeParse());
-        PARSE.put(VerticalAlignment.class, new VerticalAlignmentAttributeParse());
         PARSE.put(PDRectangle.class, new PDRectangleAttributeParse());
     }
 
@@ -48,22 +46,22 @@ public class AttributeUtils {
      * @param <T>          返回值类型
      * @return 返回值
      */
+    @SuppressWarnings("all")
     public static <T> T parse(String value, Class<T> clazz, T defaultValue) {
-        if (StrUtil.isBlank(value)) {
-            return defaultValue;
-        }
-        // 枚举
-        if (clazz.isEnum()) {
-            for (T enumConstant : clazz.getEnumConstants()) {
-                if (StrUtil.equalsIgnoreCase(((Enum<?>) enumConstant).name(), value)) {
-                    return enumConstant;
-                }
+        if (StrUtil.isNotBlank(value)) {                        // 输入值为null,返回默认
+            if (clazz.isAssignableFrom(String.class)) {         // 字符串直接返回
+                return (T) value;
+            } else if (clazz.isEnum()) {                        // 枚举处理
+                return (T) ExUtils.execute(() -> Enum.valueOf((Class<? extends Enum>) clazz, StringUtils.upperCase(value)), "参数[{}]无法格式化为类[{}]", value, clazz.getName());
+            }  else if (Number.class.isAssignableFrom(clazz)) {  // number类型处理
+                return ExUtils.execute(() -> Convert.convert(clazz, String.valueOf(new ExpressionBuilder(value).build().evaluate())), "参数[{}]无法格式化为类[{}]", value, clazz.getName());
+            } else if (PARSE.containsKey(clazz)) {              // 特殊处理,从处理器中获取对应解析器处理
+                return (T) ExUtils.execute(() -> PARSE.get(clazz).parse(value), "参数[{}]无法格式化为类[{}]", value, clazz.getName());
+            } else {
+                throw new RuntimeException(StrUtil.format("参数[{}]无法格式化,[{}]找不到匹配的类处理器", value, clazz.getName()));
             }
-            return null;
         }
-        // 获取对应解析器处理
-        AttributeParse parse = PARSE.get(clazz);
-        return Objects.isNull(parse) ? defaultValue : parse.parse(value);
+        return defaultValue;
     }
 
 }

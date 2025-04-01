@@ -85,6 +85,17 @@ public class FontUtils {
      * 获取字符宽度
      *
      * @param font      字体
+     * @param fontSize  字体大小
+     * @return 宽度
+     */
+    public static float width(PDFont font, float fontSize) {
+        return width(font, "啊", fontSize);
+    }
+
+    /**
+     * 获取字符宽度
+     *
+     * @param font      字体
      * @param character 字符
      * @param fontSize  字体大小
      * @return 宽度
@@ -103,6 +114,18 @@ public class FontUtils {
      */
     public static float width(PDFont font, String str, float fontSize) {
         return ExUtils.execute(() -> font.getStringWidth(str) / 1000 * fontSize);
+    }
+
+    /**
+     * 获取字符宽度
+     *
+     * @param font      字体
+     * @param str 字符
+     * @param fontSize  字体大小
+     * @return 宽度
+     */
+    public static float width(PDFont font, String str, float fontSize, float lineSpace) {
+        return ExUtils.execute(() -> font.getStringWidth(str) / 1000 * fontSize + (str.length() * lineSpace));
     }
 
     /**

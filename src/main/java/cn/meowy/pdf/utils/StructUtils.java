@@ -41,6 +41,7 @@ public class StructUtils {
                 Float.parseFloat(ObjectUtil.defaultIfNull(XmlUtils.getStr(element, XmlAttribute.FONT_SIZE, null), "10f")),
                 ColorUtils.get(XmlUtils.getStr(element, XmlAttribute.COLOR, null), Color.BLACK),
                 Float.parseFloat(ObjectUtil.defaultIfNull(XmlUtils.getStr(element, XmlAttribute.LINE_DISTANCE, null), "0f")),
+                Float.parseFloat(ObjectUtil.defaultIfNull(XmlUtils.getStr(element, XmlAttribute.LINE_SPACE, null), "0f")),
                 TextDirection.get(XmlUtils.getStr(element, XmlAttribute.TEXT_DIRECTION, null), TextDirection.HORIZONTAL),
                 Alignment.get(XmlUtils.getStr(element, XmlAttribute.ALIGNMENT, null), Alignment.LEFT),
                 Float.parseFloat(ObjectUtil.defaultIfNull(XmlUtils.getStr(element, XmlAttribute.FONT_SIZE, null), String.valueOf(rectangle.getHeight())))
@@ -63,6 +64,7 @@ public class StructUtils {
                 Float.parseFloat(ObjectUtil.defaultIfNull(XmlUtils.getStr(element, XmlAttribute.FONT_SIZE, null), String.valueOf(struct.fontSize))),
                 ColorUtils.get(XmlUtils.getStr(element, XmlAttribute.COLOR, null), struct.pdColor),
                 Float.parseFloat(ObjectUtil.defaultIfNull(XmlUtils.getStr(element, XmlAttribute.LINE_DISTANCE, null), String.valueOf(struct.lineDistance))),
+                Float.parseFloat(ObjectUtil.defaultIfNull(XmlUtils.getStr(element, XmlAttribute.LINE_SPACE, null), String.valueOf(struct.lineSpace))),
                 TextDirection.get(XmlUtils.getStr(element, XmlAttribute.TEXT_DIRECTION, null), struct.textDirection),
                 Alignment.get(XmlUtils.getStr(element, XmlAttribute.ALIGNMENT, null), struct.alignment),
                 Float.parseFloat(ObjectUtil.defaultIfNull(XmlUtils.getStr(element, XmlAttribute.FONT_SIZE, null), String.valueOf(struct.newPosition)))

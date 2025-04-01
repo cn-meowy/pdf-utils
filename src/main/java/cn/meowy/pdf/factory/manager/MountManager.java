@@ -27,11 +27,10 @@ public class MountManager extends PDFManager {
      */
     @Override
     public <T> void handler(PDDocument doc, Element element, T data) {
-        // 获取挂载的模块文件
-        String xmlName = XmlUtils.getStr(element, XmlAttribute.SLOT, getParams());
+        String xmlName = XmlUtils.getStr(element, XmlAttribute.SLOT, getParams());                                              // 获取挂载的模块文件
         Assert.state(StrUtil.isNotBlank(xmlName), "未声明挂载插件名称!");
-        Document document = TemplateUtils.loadTemplate(xmlName, data);
+        Document document = TemplateUtils.loadTemplate(xmlName, data);                                                          // 加载模版文件并注入数据
         Assert.state(XmlUtils.rootElementCheck(document, XmlElement.SLOT), "模板根节点错误!\n{}", xmlName);
-        childHandlers(doc, document.getRootElement(), data);
+        childHandlers(doc, document.getRootElement(), data);                                                                    // 根据挂载模块选择节点处理器处理
     }
 }
