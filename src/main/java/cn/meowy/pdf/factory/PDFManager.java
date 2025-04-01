@@ -1,4 +1,4 @@
-package cn.meowy.pdf.factory.manager;
+package cn.meowy.pdf.factory;
 
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.map.MapUtil;

@@ -2,6 +2,7 @@ package cn.meowy.pdf.factory.manager;
 
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
+import cn.meowy.pdf.factory.PDFManager;
 import cn.meowy.pdf.utils.TemplateUtils;
 import cn.meowy.pdf.utils.XmlAttribute;
 import cn.meowy.pdf.utils.XmlElement;

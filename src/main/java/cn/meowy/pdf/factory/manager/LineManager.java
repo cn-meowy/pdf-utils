@@ -2,6 +2,7 @@ package cn.meowy.pdf.factory.manager;
 
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.meowy.pdf.factory.PDFManager;
 import cn.meowy.pdf.utils.enums.TextDirection;
 import cn.meowy.pdf.utils.structure.PageStruct;
 import lombok.AllArgsConstructor;

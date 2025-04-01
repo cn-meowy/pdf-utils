@@ -458,5 +458,38 @@
             </tr>
         </#list>
     </table>
+    <pr rectangle="B4" />
+    <paragraph>验资</paragraph>
+    <br/>
+    <table x="20">
+        <tr>
+            <td rowspan="2">缴款人</td>
+            <td rowspan="2">缴入日期</td>
+            <td rowspan="2">#[账户性质]</td>
+            <td rowspan="2">银行账号</td>
+            <td rowspan="2">币种</td>
+            <td rowspan="2">金额</td>
+            <td rowspan="2">款项用途</td>
+            <td colspan="2">#[款项来源]</td>
+            <td rowspan="2">备注</td>
+        </tr>
+        <tr>
+            <td>境内</td>
+            <td>境外</td>
+        </tr>
+        <#list infoList as item>
+            <tr>
+                <td>${item.data}</td>
+                <td>${item.data}</td>
+                <td>${item.data}</td>
+                <td>${item.data}</td>
+                <td>${item.data}</td>
+                <td>${item.data}</td>
+                <td>${item.data}</td>
+                <td colspan="2">${item.data}</td>
+                <td>${item.data}</td>
+            </tr>
+        </#list>
+    </table>
     <br/>
 </slot>

@@ -1,14 +1,10 @@
 package cn.meowy.pdf.factory.manager;
 
+import cn.meowy.pdf.factory.PDFManager;
 import cn.meowy.pdf.utils.StructUtils;
-import cn.meowy.pdf.utils.XmlAttribute;
-import cn.meowy.pdf.utils.enums.Alignment;
-import cn.meowy.pdf.utils.enums.TextDirection;
 import cn.meowy.pdf.utils.structure.PageStruct;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.dom4j.Element;
-
-import java.util.Objects;
 
 /**
  * 页面处理

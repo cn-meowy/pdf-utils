@@ -37,7 +37,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.meowy.pdf.factory.manager.PDFManager;
+import cn.meowy.pdf.factory.PDFManager;
 import cn.meowy.pdf.factory.manager.PageManager;
 import cn.meowy.pdf.service.impl.CharFontServiceImpl;
 import cn.meowy.pdf.struct.AlignmentCenter;

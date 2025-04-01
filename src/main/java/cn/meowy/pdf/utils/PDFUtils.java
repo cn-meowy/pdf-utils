@@ -1,11 +1,10 @@
 package cn.meowy.pdf.utils;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Assert;
+import cn.meowy.pdf.factory.PDFManager;
 import cn.meowy.pdf.factory.manager.*;
 import cn.meowy.pdf.service.FontService;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.dom4j.Document;
 
 import java.io.IOException;
 

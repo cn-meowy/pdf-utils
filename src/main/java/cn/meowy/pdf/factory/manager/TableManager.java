@@ -12,6 +12,7 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.meowy.pdf.factory.PDFManager;
 import cn.meowy.pdf.utils.FontUtils;
 import cn.meowy.pdf.utils.annotation.StyleProperty;
 import cn.meowy.pdf.utils.enums.Alignment;
@@ -75,7 +76,8 @@ public class TableManager extends PDFManager {
         int startPageIndex = getLastPageNum(doc);
         if (CollUtil.isNotEmpty(table) && CollUtil.isNotEmpty(CollUtil.getFirst(table).getCells())) {
             extractCellPosition(doc, tableStyle, table);
-            for (TableRow row : table) {
+            for (int rowNum = 0; rowNum < table.size(); rowNum++) {
+                TableRow row = table.get(rowNum);
                 int pageIndex = startPageIndex;
                 float rowY = y;                                                                                                                                                 // 重置y坐标
                 float rowX = x;                                                                                                                                                 // 重置x坐标
@@ -84,20 +86,44 @@ public class TableManager extends PDFManager {
                     rowY = setting.limitY;
                     pageIndex++;
                 }
-                for (TableCell cell : row.cells) {
+                for (int cellNum = 0, cellIndex = 0; cellNum < row.cells.size(); cellNum++) {
+                    TableCell cell = row.cells.get(cellNum);
+                    cellIndex += ObjectUtil.defaultIfNull(cell.colspan, 1);
                     if (cell.rowspanFirst) {                                                                                                                                    // 输出
+                        if (rowNum > 0) {                                                                                                                                       // 从上一行单元格结束位置获取
+                            Pair<Integer, Float> endPosition = findCellIndex(table, rowNum - 1, cellIndex).endPosition;
+                            pageIndex = endPosition.getKey();
+                            rowY = endPosition.getValue();
+                        }
                         Pair<Integer, Float> endPageIndexAndEndY = drawBorder(doc, cell, pageIndex, rowY, rowX, setting.limitY, setting.margin.bottom);                         // 绘制单元格边框
                         if (minHeightCell == cell) {                                                                                                                            // 找到最小行高,记录行输入完成后的y坐标
                             startPageIndex = endPageIndexAndEndY.getKey();                                                                                                      // 设置下一行起始页索引
                             y = endPageIndexAndEndY.getValue();                                                                                                                 // 设置下一行起始y坐标
                         }
+                        writeContext(doc, cell, pageIndex, rowX, rowY, setting.limitY, setting.margin.bottom);                                                                      // 写入文本
                     }
-                    writeContext(doc, cell, pageIndex, rowX, rowY, setting.limitY, setting.margin.bottom);                                                                      // 写入文本
                     rowX = rowX + cell.width;                                                                                                                                   // 当前行x坐标右移
                 }
             }
             setLocation(x, y);                                                                                                                                                  // 输出完毕,下移y坐标
         }
+    }
+
+
+    private TableCell findCellIndex(List<TableRow> rows, int rowNum, int cellIndex) {
+        for (int rowIndex = rowNum; rowIndex >= 0; rowIndex--) {
+            List<TableCell> cells = rows.get(rowIndex).cells;
+            for (int i = 0, index = 0; i < cells.size(); i++) {
+                TableCell cell = cells.get(i);
+                index += ObjectUtil.defaultIfNull(cell.colspan, 1);
+                if (cell.rowspanFirst) {
+                    if (index >= cellIndex) {
+                        return cell;
+                    }
+                }
+            }
+        }
+        return CollUtil.get(rows.get(rowNum).cells, cellIndex);
     }
 
     /**
@@ -261,7 +287,9 @@ public class TableManager extends PDFManager {
             if (ySpace >= remainingHeight) {                                                                                        // 当前页可容纳则直接输入
                 float endY = startY - remainingHeight;
                 drawLine(doc, cell, pageIndex, rowX, rowX + cell.width, startY, endY, firstPage, true);               // 画出边框
-                return new MutablePair<>(pageIndex, endY);                                                                          // 跳出循环
+                Pair<Integer, Float> endPosition = new MutablePair<>(pageIndex, endY);                                              // 结束位置
+                cell.setEndPosition(endPosition);
+                return endPosition;                                                                          // 跳出循环
             } else {                                                                                                                // 当前页可不够容纳则直接输出完剩余空间
                 drawLine(doc, cell, pageIndex, rowX, rowX + cell.width, startY, bottom, firstPage, false);             // 画出边框
                 remainingHeight -= ySpace;                                                                                          // 计算剩余所需高度
@@ -316,19 +344,20 @@ public class TableManager extends PDFManager {
         for (int rowIndex = 0; rowIndex < table.size(); rowIndex++) {
             TableRow row = table.get(rowIndex);
             float maxHeight = ObjectUtil.defaultIfNull(row.getMinHeight(), 0F);
-            for (int cellIndex = 0; cellIndex < row.cells.size(); cellIndex++) {
+            for (int cellIndex = 0, colspanIndex = 0; cellIndex < row.cells.size(); cellIndex++) {
                 TableCell cell = row.cells.get(cellIndex);
                 cell.width = getCellWidth(cell, perCellWidth);                                                                                                                  // 计算当前单元格宽度
                 PDFont font = loadFont(doc, cell.font);
                 int lines = cell.direction.isVertical() ? extractVerticalTextLines(cell, font) : extractHorizontalTextLines(cell, font);
                 maxHeight = Math.max(maxHeight, lines * (FontUtils.height(font, cell.fontSize) + (cell.direction.isVertical() ? cell.lineSpace : cell.lineDistance)) + cell.paddingTop + cell.paddingBottom);                    // 总高度
-                if (Objects.nonNull(cell.rowspan) && cell.rowspan > 1) {
-                    for (int j = 1; j <= cell.rowspan; j++) {
+                colspanIndex += ObjectUtil.defaultIfNull(cell.colspan, 1);
+                if (Objects.nonNull(cell.rowspan) && cell.rowspan > 1 && cell.rowspanFirst) {
+                    for (int j = 1; j < cell.rowspan; j++) {
                         TableCell copyCell = TableCell.builder().build();
                         BeanUtil.copyProperties(cell, copyCell);
                         copyCell.rowspanFirst = false;
                         copyCell.rowspanCell = cell;
-                        table.get(rowIndex + j).cells.add(cellIndex, copyCell);                                                                                                 // 在指定位置插入元素
+                        table.get(rowIndex + j).cells.add((colspanIndex - 1), copyCell);                                                                                                 // 在指定位置插入元素
                     }
                 }
             }
@@ -646,6 +675,7 @@ public class TableManager extends PDFManager {
         protected TableCell rowspanCell;         // 跨行源单元格
         protected String text;                   // 文本
         protected List<Line> lines;              // 行内容
+        protected Pair<Integer, Float> endPosition; // 结束位置
     }
 
 

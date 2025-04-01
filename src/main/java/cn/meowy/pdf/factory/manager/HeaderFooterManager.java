@@ -3,6 +3,7 @@ package cn.meowy.pdf.factory.manager;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.meowy.pdf.factory.PDFManager;
 import cn.meowy.pdf.struct.AlignmentHandler;
 import cn.meowy.pdf.utils.*;
 import cn.meowy.pdf.utils.enums.Alignment;
