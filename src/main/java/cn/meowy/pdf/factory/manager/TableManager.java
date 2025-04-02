@@ -663,18 +663,18 @@ public class TableManager extends PDFManager {
     @AllArgsConstructor
     @EqualsAndHashCode(callSuper = true)
     protected static class TableCell extends Style {
-        protected Float width;                   // 宽度
-        protected Float height;                  // 高度
-        protected Float borderWidthTop;          // 边框宽度 上
-        protected Float borderWidthBottom;       // 边框宽度 下
-        protected Float borderWidthLeft;         // 边框宽度 左
-        protected Float borderWidthRight;        // 边框宽度 右
-        protected Integer rowspan;               // 跨行
-        protected Integer colspan;               // 跨列
-        protected Boolean rowspanFirst;          // 跨行起始页
-        protected TableCell rowspanCell;         // 跨行源单元格
-        protected String text;                   // 文本
-        protected List<Line> lines;              // 行内容
+        protected Float width;                      // 宽度
+        protected Float height;                     // 高度
+        protected Float borderWidthTop;             // 边框宽度 上
+        protected Float borderWidthBottom;          // 边框宽度 下
+        protected Float borderWidthLeft;            // 边框宽度 左
+        protected Float borderWidthRight;           // 边框宽度 右
+        protected Integer rowspan;                  // 跨行
+        protected Integer colspan;                  // 跨列
+        protected Boolean rowspanFirst;             // 跨行起始页
+        protected TableCell rowspanCell;            // 跨行源单元格
+        protected String text;                      // 文本
+        protected List<Line> lines;                 // 行内容
         protected Pair<Integer, Float> endPosition; // 结束位置
     }
 

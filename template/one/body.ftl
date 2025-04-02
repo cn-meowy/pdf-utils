@@ -40,50 +40,21 @@ height 高度
       text-direction="HORIZONTAL" alignment="LEFT" margin="20 20 20 20">
     <header slot="header.ftl">
         <footer slot="footer.ftl">
-            <paragraph y="{limitY} - 50" x="{centerX}" font-size="30" alignment="CENTER">银行询证函(格式一)</paragraph>
+            <paragraph y="{limitY} - 50" x="{centerX}" font-size="30" alignment="CENTER">测试PDF生成</paragraph>
             <br/>
             <paragraph y="{y} - 20" x="{limitX} - 10" alignment="RIGHT">编号: ${requestNo}</paragraph>
             <br/>
-            <paragraph y="{y} - 20" x="{margin.left}" underline="true">${bankName}</paragraph>
-            <paragraph>(以下简称“贵行”，即“函证收件人”)</paragraph>
+            <paragraph y="{y} - 20" x="{limitX} - 10" alignment="LEFT">《故事会》是由上海文艺出版社出版的故事性杂志，创刊于1963年7月</paragraph>
+            <paragraph y="{y} + 10" font-size="5" float="true">[1][2][3][4][5]</paragraph>
+            <paragraph >，版面为32开，其间经历数次改版。现今《故事会》每期销量在400万册左右，在中国期刊类书籍中销量第二（排名第一的为《读者》）。1998年时候的调查表明《故事会》在世界所有期刊销量中排名第5</paragraph>
+            <paragraph y="{y} + 10" font-size="5" float="true">[6]</paragraph>
+            <paragraph >。</paragraph>
             <br/>
-            <paragraph x="{margin.left} + 20">本公司聘请的 [</paragraph>
-            <paragraph underline="true">${accountingFirmName}</paragraph>
-            <paragraph>]正对本公司[</paragraph>
-            <paragraph underline="true">${year}</paragraph>
-            <paragraph>年度(或期间)]的财务报表进行审计，按照[中国注册会计师审计准则][列明其他相关审计准则名称]的要求，应当询证本公司与贵行相关的信息。下列第1-14项及附表(如适用)信息出自本公司的记录：</paragraph>
-            <br/>
-            <paragraph x="{margin.left} + 20">(1)如与贵行记录相符，请在本函“结论部分[签字或签章]或[签发电子签名]</paragraph>
-            <paragraph y="{y} + 5" font-size="5" float="true">1</paragraph>
-            <paragraph>”；</paragraph>
-            <br/>
-            <paragraph x="{margin.left} + 20">(2)如有不符，请在本函“结论”部分列表不符项目及具体内容，并签字或签章]或[签发电子签名]。</paragraph>
-            <br/>
-            <paragraph x="{margin.left} + 20">本公司谨授权贵行将回函直接寄至</paragraph>
-            <paragraph underline="true">${accountingFirmAddress}</paragraph>
-            <paragraph>[或直接转交</paragraph>
-            <paragraph underline="true">${accountant}</paragraph>
-            <paragraph>函证经办人</paragraph>
-            <paragraph y="{y} + 5" font-size="5" float="true">2</paragraph>
-            <paragraph>]，地址及联系方式</paragraph>
-            <paragraph y="{y} + 5" font-size="5" float="true">3</paragraph>
-            <paragraph>如下：</paragraph>
-            <br/>
-            <mount slot="one/contact-table.ftl"/>
-            <paragraph x="{margin.left} + 20">本公司谨授权贵行可从本公司账户支取办理本询证函回函服务的费用(如适用)。
-            </paragraph>
-            <br/>
-            <paragraph x="{margin.left} + 20">截至[</paragraph>
-            <paragraph underline="true">${date}</paragraph>
-            <paragraph>](即“函证基准日”)，本公司与贵行相关的信息</paragraph>
-            <paragraph y="{y} + 5" font-size="5" float="true">4</paragraph>
-            <paragraph>列示如下：</paragraph>
+            <paragraph x="{limitX} - 10">《故事会》现为半月刊，分为“上半月·红版”与“下半月·绿版”。</paragraph>
             <br/>
             <mount slot="one/first-page-footer.ftl"/>
             <pr rectangle="B4" />
             <mount slot="one/option.ftl"/>
-            <pr />
-            <mount slot="one/conclusion.ftl"/>
         </footer>
     </header>
 </page>

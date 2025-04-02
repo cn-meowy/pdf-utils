@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<slot> 448
+<slot>
     <table x="20" horizontal-alignment="CENTER" vertical-alignment="MIDDLE">
         <tr>
             <td horizontal-alignment="RIGHT" colspan="3"
@@ -7,7 +7,7 @@
                 border-width-left="0"
                 border-width-right="0"
                 border-width-bottom="0"
-            >回函地址：</td>
+            >投稿地址：</td>
             <td horizontal-alignment="CENTER" colspan="7"
                 border-width-top="0"
                 border-width-left="0"

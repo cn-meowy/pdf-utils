@@ -227,7 +227,7 @@ public class AppTest {
         List<Map<String, String>> list = new ArrayList<>();
         for (int i = 0; i < 1; i++) {
             list.add(MapUtil.builder(new HashMap<String, String>())
-                    .put("data",  RandomUtil.randomString("广西南宁市青秀区新新大厦", 400) + RandomUtil.randomNumbers(100) + RandomUtil.randomString(110))
+                    .put("data",  RandomUtil.randomString("广西南宁市青秀区新新大厦", 25) + RandomUtil.randomNumbers(10) + RandomUtil.randomString(10))
                     .build());
         }
         return list;

@@ -106,7 +106,7 @@ public abstract class PDFManager {
     }
 
     public static PDFManager getPDFManager() {
-        return MANAGER_MAP.get("page");
+        return MANAGER_MAP.get(XmlElement.PAGE);
     }
 
     /**
